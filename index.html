@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weathergram</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="page">
+        <header>
+            <h2 style="color: #FFBD3E;">Weathergram.</h2>
+        </header>
+        <div class="main">
+            <div class="main-card">
+                <h2 id="place"></h2>
+  
+                <img src="" alt="" id="icon">
+                <h3 id="description"></h4>
+                <h1 id="temperature"></h1>
+                <h3 id="humidity"></h3>
+                <h3 id="wind"></h3>
+                <form class="search" id="search">
+                    <span></span>
+                    <input type="text" placeholder="Search" id="search-input">
+                    <button type="submit" id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/06c340740d.js" crossorigin="anonymous"></script>
+
+    <script>
+
+       function getPosition() {
+            navigator.geolocation.getCurrentPosition(position => {
+                let long = position.coords.longitude,
+                    lat = position.coords.latitude;
+                console.log(`${long},${lat}`);
+                getData(`${long},${lat}`)
+            })
+       }
+
+       window.addEventListener('load', e=>{
+        getPosition()
+       })
+       
+
+
+        let currentLocation,
+            city = document.getElementById('place'),
+            temp = document.getElementById('temperature'),
+            description = document.getElementById('description')
+            humidity =  document.getElementById('humidity'),
+            wind = document.getElementById('wind'),
+            icon = document.getElementById('icon'),
+            form = document.getElementById('search'),
+            searchInput = document.getElementById('search-input'),
+            searchBtn = document.getElementById('search-btn');
+
+        
+        function getData(location) {
+            fetch(`http://api.weatherstack.com/current?access_key=2f4e8e74e2c477e2ebbe3a48fc79ea58&query=${location}`)
+            .then(response=>{
+                return response.json();
+            }).then(data => {
+                console.log('success', data.location.name);
+                currentLocation = data;
+                console.log(currentLocation);
+                displayData();
+            }).catch(err => {
+                console.log('no  success', err);
+            })
+        }
+
+        function displayData() {
+            city.innerHTML = currentLocation.location.name;
+            temp.innerHTML =  currentLocation.current.temperature + '°';
+            wind.innerHTML = 'Wind: ' + currentLocation.current.wind_speed;
+            humidity.innerHTML = 'Humidity: ' + currentLocation.current.humidity;
+            description.innerHTML = currentLocation.current.weather_descriptions[0];
+            icon.src = currentLocation.current.weather_icons[0];
+            icon.style.display = 'inline-block'
+        }
+
+        
+        form.addEventListener('submit', e=>{
+            e.preventDefault();
+
+            let q = searchInput.value;
+
+            getData(q);
+
+            e.target.reset();
+        })
+        
+        
+        
+
+
+
+
+
+    </script>
+</body>
+</html>
